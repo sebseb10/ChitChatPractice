@@ -1,0 +1,57 @@
+syntax = "proto3";
+option go_package = "ChitChatPractice/grpc/chitchat";
+
+enum EventType {
+  EVENT_TYPE_UNKNOWN = 0;
+  EVENT_TYPE_CHAT = 1;
+  EVENT_TYPE_JOIN = 2;
+  EVENT_TYPE_LEAVE = 3;
+}
+message ChatEvent {
+  EventType type = 1;
+  int32 client_id = 2;
+  string name = 3;
+  int64 lamport_time = 4;
+  string content = 5;
+}
+
+message JoinRequest {
+  string client_name = 1;
+}
+
+message JoinResponse {
+  int32 client_id = 1;
+  int64 lamport_time = 2;
+}
+
+message PublishRequest{
+  int32 client_id = 1;
+  string content = 2;
+}
+
+message PublishResponse{
+  bool ack = 1;
+}
+
+message LeaveRequest {
+  int32 client_id = 1;
+}
+
+message LeaveResponse {
+  bool ack = 1;
+}
+
+message StreamRequest {
+  int32 client_id = 1;
+}
+
+message Empty {}
+
+service ChitChatService {
+  //unary methods for joining, publishing messages and leaving
+  rpc Join (JoinRequest) returns (JoinResponse);
+  rpc SendMessage (PublishRequest) returns (PublishResponse);
+  rpc Leave (LeaveRequest) returns (LeaveResponse);
+  //server-side streaming for broadcasting to all clients:
+  rpc StreamMessages (StreamRequest) returns (stream ChatEvent);
+}
